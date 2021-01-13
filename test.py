@@ -53,8 +53,8 @@ df.columns = ['Date', 'Price']
 
 #Plotting the data on the same graph
 ax = plt.gca()
-df.plot(kind='line',x='Date',y='SMA30',color = 'blue', ax=ax)
-df.plot(kind='line',x='Date',y='SMA100', color='red', ax=ax)
+df.plot(kind='line',x='Date',y='Price',color = 'blue', ax=ax)
+df.plot(kind='line',x='Date',y='Price', color='red', ax=ax)
 
 plt.show()
 
