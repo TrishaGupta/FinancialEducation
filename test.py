@@ -51,9 +51,9 @@ df = pd.DataFrame.from_dict(data_json['dataset_data']['data'])
 df.columns = ['Date', 'Price']
 #print(df.head())
 
-df['sma(5)'] = df.rolling(window = 5).mean()
-
-df['sma(10)'] = df.rolling(window = 10).mean()
+df['sma(5)'] = df['Price'].rolling(window = 5).mean()
+print(df.head(20))
+df['sma(10)'] = df['Price'].rolling(window = 10).mean()
 
 print(df.head(20))
 
