@@ -49,21 +49,23 @@ df = pd.DataFrame.from_dict(data_json['dataset_data']['data'])
 
 #renaming columns from rangeIndex to legible words
 df.columns = ['Date', 'Price']
-#print(df.head())
 
+
+#Calculating various simple moving averages and adding to dataframe
 df['sma(5)'] = df['Price'].rolling(window = 5).mean()
-print(df.head(20))
 df['sma(10)'] = df['Price'].rolling(window = 10).mean()
 
-print(df.head(20))
+
 
 #Plotting the data on the same graph
 
 ax = plt.gca()
-df.plot(kind='line',x='Date',y='Price',color = 'blue', ax=ax)
-df.plot(kind='line',x='Date',y='Price', color='red', ax=ax)
+df.plot(kind='line',x='Date', y='Price', color = 'blue', ax=ax)
+df.plot(kind='line',x='Date', y='sma(5)' , color = 'red', ax=ax)
+df.plot(kind='line',x='Date', y='sma(10)' , color = 'green', ax=ax)
+#df.plot(kind='line',x='Date',y='Price', color='red', ax=ax)
 
-#plt.show()
+plt.show()
 
 
 
