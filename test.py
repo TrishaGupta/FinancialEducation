@@ -26,7 +26,7 @@ end_date = datetime.strptime(end_date_temp, "%Y-%m-%d").strftime('%d-%m-%Y')
 #print(end_date)		
 
 
-url = "https://www.quandl.com/api/v3/datasets/BSE/"+symbol+"/data.json?api_key=DJS3s5-qSxQRxf4KCwjW&start_date="+ start_date + "&end_date=" + end_date+ "&column_index=1"
+url = "https://www.quandl.com/api/v3/datasets/BSE/"+symbol+"/data.json?api_key=DJS3s5-qSxQRxf4KCwjW&start_date="+ start_date + "&end_date=" + end_date+ "&column_index=4"
 #start_date="+ start_date + "&end_date=" + end_date + "api_key=DJS3s5-qSxQRxf4KCwjW"
 
 
@@ -49,24 +49,27 @@ df = pd.DataFrame.from_dict(data_json['dataset_data']['data'])
 
 #renaming columns from rangeIndex to legible words
 df.columns = ['Date', 'Price']
-
+df = df.iloc[::-1]
 
 #Calculating various simple moving averages and adding to dataframe
 df['sma(5)'] = df['Price'].rolling(window = 5).mean()
 df['sma(10)'] = df['Price'].rolling(window = 10).mean()
 
+df_test = df.tail(30)
 
+df_test['sma(5)'] = df['Price'].rolling(window = 5).mean()
+df_test['sma(30)'] = df['Price'].rolling(window = 30).mean()
 
-#Plotting the data on the same graph
-
+print(df.tail(30))
+#Plotting sma on the same graph 
+'''
 ax = plt.gca()
 df.plot(kind='line',x='Date', y='Price', color = 'blue', ax=ax)
 df.plot(kind='line',x='Date', y='sma(5)' , color = 'red', ax=ax)
 df.plot(kind='line',x='Date', y='sma(10)' , color = 'green', ax=ax)
-#df.plot(kind='line',x='Date',y='Price', color='red', ax=ax)
 
 plt.show()
-
+'''
 
 
 
