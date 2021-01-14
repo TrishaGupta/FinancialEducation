@@ -51,12 +51,23 @@ df = pd.DataFrame.from_dict(data_json['dataset_data']['data'])
 df.columns = ['Date', 'Price']
 #print(df.head())
 
+df['sma(5)'] = df.rolling(window = 5).mean()
+
+df['sma(10)'] = df.rolling(window = 10).mean()
+
+print(df.head(20))
+
 #Plotting the data on the same graph
+
 ax = plt.gca()
 df.plot(kind='line',x='Date',y='Price',color = 'blue', ax=ax)
 df.plot(kind='line',x='Date',y='Price', color='red', ax=ax)
 
-plt.show()
+#plt.show()
+
+
+
+
 
 
 
