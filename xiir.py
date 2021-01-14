@@ -14,7 +14,7 @@ start_date="31-10-2017"
 end_date_temp="#"
 end_date_temp+= str(date.today())
 end_date_temp=str(end_date_temp)
-end_date="" 
+end_date=""
 temp=""
 
 
@@ -36,51 +36,85 @@ url = "https://www.quandl.com/api/v3/datasets/BSE/"+symbol+"/data.json?api_key=D
 
 
 
-
 response = requests.request("GET", url)
 todos=json.loads(response.text)
+
 todos_dataset= todos['dataset_data']
 todos_data=todos_dataset['data']
 
-x = np.arange(0,len(todos_data),1)
+#variables for x,y values of the graph
 xTicks = [] #dates
 y_close = [] #closing values
+xTicks_close_sma10 = xTicks[((len(todos_data)-9)*-1):]
+y_close_sma10=[]
+xTicks_close_sma20 = xTicks[((len(todos_data)-19)*-1):]
+y_close_sma20=[]
+
+#variables for graph
+x = np.arange(0,len(todos_data),1)
+x_sma10=np.arange(0,len(todos_data)-9,1)
+x_sma20=np.arange(0,len(todos_data)-19,1)
 
 #[date,value]
 for i in range(0,len(todos_data)):
 	xTicks.append(todos_data[i][0])
 	y_close.append(todos_data[i][1])
-	y_close_sma10=[]
+
 #calculate 10 day sma; we take the average of 10 days from y_close
-#temp=1
-#avg=0
+count=1
+sum=0
+avg=0
 
-#for i in range(0,len(todos_data)):
+for i in range(0,len(todos_data)):
+	if i <10:
+		sum+=todos_data[i][1]
+		if i==9:
+			avg=sum/10.0
+			y_close_sma10.append(avg)
+			xTicks_close_sma10.append(xTicks.append(xTicks[i]))
+	else:
+		sum= sum - todos_data[i-10][1]
+		sum= sum + todos_data [i][1]
+		avg= sum/10.0
+		y_close_sma10.append(avg)
+		xTicks_close_sma10.append(xTicks.append(xTicks[i]))
 
 
+#calculate 20 day sma; we take the average of 20 days from y_close
+count=1
+sum=0
+avg=0
 
-
+for i in range(0,len(todos_data)):
+	if i <20:
+		sum+=todos_data[i][1]
+		if i==19:
+			avg=sum/20.0
+			y_close_sma20.append(avg)
+			xTicks_close_sma20.append(xTicks.append(xTicks[i]))
+	else:
+		sum= sum - todos_data[i-20][1]
+		sum= sum + todos_data [i][1]
+		avg= sum/20.0
+		y_close_sma20.append(avg)
+		xTicks_close_sma20.append(xTicks.append(xTicks[i]))
 
 #plot graph here
+
+#print (len(x))
+#print(len(y_close_sma10))
+
+
 plt.xticks(x, xTicks)
-plt.xticks(range(int(len(todos_data))), xTicks, rotation=90, fontsize=1) #writes strings with 45 degree angle
-plt.plot(x,y_close,'-ok')
+plt.xticks(range(int(len(todos_data))), xTicks, rotation=90, fontsize=1)
+plt.plot(x,y_close,'-ok',label= "closing price", color="red")
+
+plt.xticks(x_sma10, xTicks_close_sma10)
+plt.xticks(range(int(len(xTicks_close_sma10))), xTicks_close_sma10, rotation=90, fontsize=1)
+plt.plot(x_sma10,y_close_sma10,'-ok',label= "10 day sma", color="blue")
+
+plt.xticks(x_sma20, xTicks_close_sma20)
+plt.xticks(range(int(len(xTicks_close_sma20))), xTicks_close_sma20, rotation=90, fontsize=1)
+plt.plot(x_sma20,y_close_sma20,'-ok',label= "20 day sma", color="green")
+
 plt.show()
-
-
-
-
-#print(json.dumps(todos_data,indent=4,sort_keys=True))
-
-#for x in range(5):
-	#for y in todos_data[x]:
-		#print (y)
-
-#print(todos)
-
-#todos_dataset=todos['dataset_data']
-#print(todos_dataset[''])
-#todos_column=todos_dataset['Close']
-#print (todos_dataset['Column'])
-#print(todos_column)
-#print(response.text)
