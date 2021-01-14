@@ -54,11 +54,8 @@ df = df.iloc[::-1]
 #Calculating various simple moving averages and adding to dataframe
 df['sma(5)'] = df['Price'].rolling(window = 5).mean()
 df['sma(10)'] = df['Price'].rolling(window = 10).mean()
-
+df['sma(30)'] = df['Price'].rolling(window = 30).mean()
 df_test = df.tail(30)
-
-df_test['sma(5)'] = df['Price'].rolling(window = 5).mean()
-df_test['sma(30)'] = df['Price'].rolling(window = 30).mean()
 
 print(df.tail(30))
 #Plotting sma on the same graph 
