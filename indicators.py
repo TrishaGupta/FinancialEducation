@@ -7,6 +7,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import pandas_ta as ta #pip install -U git+https://github.com/twopirllc/pandas-ta
+
 '''
 1- buy Indicator
 0- sell indicator
@@ -41,7 +43,7 @@ class Indicators:
 
     def EMA(self):
         '''Calculates the ema_26 and ema_200
-        Parameters -- data_fram: the data_frame of the data_frame
+        Parameters -- data_frame: the data_frame of the data_frame
         Outputs -- adds values to the data_frame
         '''
         data_frame= self.data_frame
@@ -95,7 +97,12 @@ data_json = response.json()
 data_frame = pd.DataFrame.from_dict(data_json['dataset_data']['data'])
 data_frame.columns = ['Date', 'Close']
 data_frame=data_frame.iloc[::-1]
+data_frame.set_index(pd.DatetimeIndex(data_frame["Date"]), inplace=True)
+data_frame.ta.sma(data_frame['close'], 10,append=True)
 
+print(data_frame.head())
+
+'''
 test = Indicators(data_frame)
 test.SMA()
 test.EMA()
@@ -103,3 +110,17 @@ test.WMA()
 
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
     print(data_frame)
+'''
+
+'''
+Preparing a data frame of random numbers 
+and using pandas functions to verify
+
+
+df = df = pd.DataFrame(np.random.randint(100, 1000, (3, 4)), columns=list('ABCD'))
+df.set_index(pd.DatetimeIndex(df["datetime"]), inplace=True)
+df.ta.log_return(cumulative=True, append=True)
+df.ta.percent_return(cumulative=True, append=True)
+
+print(df.head())
+'''
