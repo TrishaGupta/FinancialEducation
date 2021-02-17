@@ -1,6 +1,7 @@
 import scipy
 import requests
 import json
+import datetime
 from datetime import date
 import pandas as pd
 import numpy as np
@@ -12,7 +13,7 @@ investment_dates=()
 symbol="BOM500820"
 start_date="31-10-2017"
 end_date_temp="#"
-end_date_temp+= str(date.today())
+end_date_temp+= str(datetime.date.today())
 end_date_temp=str(end_date_temp)
 end_date=""
 temp=""
@@ -42,8 +43,9 @@ url = "https://www.quandl.com/api/v3/datasets/BSE/"+symbol+"/data.json?api_key=D
 
 response = requests.request("GET", url)
 todos=json.loads(response.text)
-print(todos)
 
+
+#print(todos)
 #todos_dataset=todos['dataset_data']
 #print(todos_dataset[''])
 #todos_column=todos_dataset['Close']
