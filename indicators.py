@@ -159,6 +159,28 @@ class Indicators:
         return 0
 
 
+    def BollingerBand(self):
+
+        data_frame = self.data_frame
+
+        # typical price= (high+low+close)/3
+        data_frame['Typical_price'] = (data_frame['Low']+ data_frame['High'] + data_frame['Close'])* 1/3
+        #std deviation rolling 20 day windows
+        data_frame['TP_std_dev_20']= data_frame['Typical_price'].rolling(20).std()
+        data_frame['TP_MA_20'] = data_frame['Typical_price'].rolling(20).mean()
+        m =2
+        data_frame['BOLU'] = (data_frame['TP_MA_20'] + (m* data_frame['TP_std_dev_20']))
+        data_frame['BOLD'] = (data_frame['TP_MA_20'] - (m* data_frame['TP_std_dev_20']))
+        # band width= bolu- bold / middle
+        data_frame['Band_width'] = (data_frame['BOLU'] - data_frame['BOLD'])/data_frame['sma_20']
+
+        # if close > BOLU then sell
+        data_frame['BOLU_buy_sell'] = np.select([data_frame['BOLU'] <= data_frame['Close'], data_frame['BOLD'] >= data_frame['Close']],['0','1'], 'None')
+
+
+
+    #def KeltnerChannel(self):
+
 
 #testing purposeso
 symbol="BOM500820"
@@ -167,13 +189,14 @@ end_date_temp=""
 end_date_temp+= str(date.today())
 end_date_temp=str(end_date_temp)
 end_date= datetime.strptime(end_date_temp, "%Y-%m-%d").strftime('%d-%m-%Y')
-url = "https://www.quandl.com/api/v3/datasets/BSE/"+symbol+"/data.json?api_key=DJS3s5-qSxQRxf4KCwjW&start_date="+ start_date + "&end_date=" + end_date+ "&column_index=4"
+url = "https://www.quandl.com/api/v3/datasets/BSE/"+symbol+"/data.json?api_key=DJS3s5-qSxQRxf4KCwjW&start_date="+ start_date + "&end_date=" + end_date#+ "&column_index=4"
+#"https://www.quandl.com/api/v3/datasets/BSE/BOM500820/data.json?api_key=DJS3s5-qSxQRxf4KCwjW&start_date=31-10-2017&end_date=31-10-2020"
 
 response = requests.request("GET", url)
 data_json = response.json()
 
 data_frame = pd.DataFrame.from_dict(data_json['dataset_data']['data'])
-data_frame.columns = ['Date', 'Close']
+data_frame.columns = ["Date","Open","High","Low","Close","WAP","No. of Shares","No. of Trades","Total Turnover","Deliverable Quantity","% Deli. Qty to Traded Qty","Spread H-L","Spread C-O"]
 data_frame=data_frame.iloc[::-1]
 
 test = Indicators(data_frame)
@@ -182,12 +205,16 @@ test.EMA()
 test.WMA()
 test.MACD()
 test.RSI()
+test.BollingerBand()
 
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
     #print(data_frame['RSI_oversold'])
     #print(data_frame['RSI_crosses_over_30'])
     #print(data_frame['RSI_dips'])
     #print(data_frame['RSI_local_max'])
-    print(data_frame)
+    #print(data_frame['Typical_price'])
+    print(data_frame['BOLU'])
+    #print(data_frame['BOLD'])
+    #print(data_frame['sma_20'])
 
 #print(data_frame['RSI_loss'])
