@@ -48,6 +48,7 @@ class Indicators:
 
          #12 day EMA used in MACD calculation
         data_frame['ema_12']= data_frame['Close'].ewm(span=12,adjust=False, min_periods=0, ignore_na=False).mean()
+        #EMA 20 used as keltner band
         data_frame['ema_26']= data_frame['Close'].ewm(span=26, adjust=False, min_periods=0, ignore_na=False).mean()
         data_frame['ema_200']= data_frame['Close'].ewm(span=200, adjust=False).mean()
 
@@ -179,10 +180,52 @@ class Indicators:
 
 
 
-    #def KeltnerChannel(self):
+    def KeltnerChannel(self):
+
+        data_frame = self.data_frame
+
+        data_frame['temp1'] = data_frame['High'] - data_frame['Low']
+        data_frame['temp2'] = abs(data_frame['High'] - data_frame['Close'])
+        data_frame['temp3'] = abs(data_frame['Low'] - data_frame['Close'])
+
+        data_frame['True_range']= data_frame[['temp1','temp2', 'temp3']].max(axis=1)
+        #true range = max(high -low, abs(high - close), abs(low - close))
+        #data_frame['True_range'] = data_frame.apply(lambda row: values.max((data_frame['High']- data_frame['Low']), abs(data_frame['High'] - data_frame['Close']), abs(data_frame['Low'] - data_frame['Close'])), axis =1)
+        data_frame['Average_True_Range'] = data_frame['True_range'].rolling(20).mean()
+        data_frame['Keltner_Middle_Channel']= data_frame['Close'].ewm(span=20, adjust=False, min_periods=0, ignore_na=False).mean()
+
+        #keltner Channels
+        # Upper channel = 20 EMA + (2 * ATR)
+        data_frame['Keltner_Upper_Channel'] = data_frame['Keltner_Middle_Channel'] + (2 * data_frame['Average_True_Range'])
+        #Lower channel = 20 EMA - (2 * ATR)
+        data_frame['Keltner_Lower_Channel'] = data_frame['Keltner_Middle_Channel'] - (2* data_frame['Average_True_Range'])
+
+        # ATR + closing(today) < next day closing then buy
+        data_frame['K_signal'] = np. select([(data_frame['True_range'] + data_frame['Close']) < data_frame['Close'].shift(periods=1)],['1'],'None')
+
+    def ABANDS(self):
+
+        data_frame = self.data_frame
+
+        #Upper Band = Simple Moving Average (High * ( 1 + 4 * (High - Low) / (High + Low)))
+        data_frame['ABANDS_upper_band'] = (data_frame['High'] * (1 + 4 *((data_frame['High'] - data_frame['Low'])/(data_frame['High'] + data_frame['Low'])))).rolling(20).mean()
+        #Lower Band = Simple Moving Average (Low * (1 - 4 * (High - Low)/ (High + Low)))
+        data_frame['ABANDS_lower_band'] = (data_frame['Low'] * (1 - 4 *((data_frame['High'] - data_frame['Low'])/(data_frame['High'] + data_frame['Low'])))).rolling(20).mean()
 
 
-#testing purposeso
+
+    def AD_Indicator(self):
+
+        data_frame= self.data_frame
+        # AD= prev AD + CMFV
+        # CMFV =((close - low) - (high - close))/ (high - low)  * Volume
+        data_frame['CMFV'] = ((( data_frame['Close'] - data_frame['Low']) - ( data_frame['High'] - data_frame['Close'])) / (data_frame['High'] - data_frame['Low'])) * data_frame['No. of Shares']
+        data_frame['AD'] = data_frame['CMFV']
+        data_frame['AD'] = data_frame['AD'] + data_frame['AD'].shift(periods=-1)
+
+
+
+#testing purposes
 symbol="BOM500820"
 start_date="31-10-2017"
 end_date_temp=""
@@ -206,14 +249,17 @@ test.WMA()
 test.MACD()
 test.RSI()
 test.BollingerBand()
+test.KeltnerChannel()
+test.ABANDS()
+test.AD_Indicator()
 
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
     #print(data_frame['RSI_oversold'])
     #print(data_frame['RSI_crosses_over_30'])
     #print(data_frame['RSI_dips'])
     #print(data_frame['RSI_local_max'])
-    #print(data_frame['Typical_price'])
-    print(data_frame['BOLU'])
+    print(data_frame['Typical_price'])
+    #print(data_frame[['sma_200', 'sma_20']].max(axis=1))
     #print(data_frame['BOLD'])
     #print(data_frame['sma_20'])
 
