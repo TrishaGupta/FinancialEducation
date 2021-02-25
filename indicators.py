@@ -223,7 +223,9 @@ class Indicators:
         data_frame['CMFV'] = ((( data_frame['Close'] - data_frame['Low']) - ( data_frame['High'] - data_frame['Close'])) / (data_frame['High'] - data_frame['Low'])) * data_frame['No. of Shares']
         data_frame['AD'] = data_frame['CMFV']
         data_frame['AD'] = data_frame['AD'] + data_frame['AD'].shift(periods=-1)
-        data_frame['AD'][0] = data_frame['CMFV'][0]
+        data_frame.at[0,'AD']= data_frame.at[0,'CMFV']
+
+
 
 
     def ADX(self):
@@ -270,6 +272,16 @@ class Indicators:
         #data_frame['ADX'].iloc[13:18] = ((data_frame['ADX'].shift(periods=-1) *13) + data_frame['DX'])/14
 
 
+        def ADX_helper(row):
+            if(row['Index'] > 13):
+                data_frame['ADX'] = ((data_frame['ADX'].shift(periods=-1) *13) + data_frame['DX'])/14
+            else:
+                data_frame['ADX'] = data_frame.at[13,'ADX']
+
+
+        data_frame.apply(ADX_helper, axis=1)
+
+
 
 
 #testing purposes
@@ -288,6 +300,8 @@ data_json = response.json()
 data_frame = pd.DataFrame.from_dict(data_json['dataset_data']['data'])
 data_frame.columns = ["Date","Open","High","Low","Close","WAP","No. of Shares","No. of Trades","Total Turnover","Deliverable Quantity","% Deli. Qty to Traded Qty","Spread H-L","Spread C-O"]
 data_frame=data_frame.iloc[::-1]
+index = np.arange(0,data_frame.shape[0])
+data_frame['Index'] = index
 
 test = Indicators(data_frame)
 test.SMA()
@@ -299,6 +313,7 @@ test.BollingerBand()
 test.KeltnerChannel()
 test.ABANDS()
 test.AD_Indicator()
+#test.ADX_helper(0,0)
 test.ADX()
 
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
@@ -307,7 +322,7 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):  
     #print(data_frame['RSI_dips'])
     #print(data_frame['RSI_local_max'])
     #print(data_frame['AD'].iloc[0:14])
-    #print(data_frame['ADX'])
+    print(data_frame['ADX'])
     #print(data_frame[['sma_200', 'sma_20']].max(axis=1))
     #print(data_frame['BOLD'])
     #print(data_frame['sma_20'])
