@@ -184,11 +184,12 @@ class Indicators:
 
         data_frame = self.data_frame
 
-        data_frame['temp1'] = data_frame['High'] - data_frame['Low']
-        data_frame['temp2'] = abs(data_frame['High'] - data_frame['Close'])
-        data_frame['temp3'] = abs(data_frame['Low'] - data_frame['Close'])
 
-        data_frame['True_range']= data_frame[['temp1','temp2', 'temp3']].max(axis=1)
+        data_frame['H-L'] = data_frame['High'] - data_frame['Low']
+        data_frame['H-C'] = abs(data_frame['High'] - data_frame['Close'])
+        data_frame['L-C'] = abs(data_frame['Low'] - data_frame['Close'])
+
+        data_frame['True_range']= data_frame[['H-L','H-C', 'L-C']].max(axis=1)
         #true range = max(high -low, abs(high - close), abs(low - close))
         #data_frame['True_range'] = data_frame.apply(lambda row: values.max((data_frame['High']- data_frame['Low']), abs(data_frame['High'] - data_frame['Close']), abs(data_frame['Low'] - data_frame['Close'])), axis =1)
         data_frame['Average_True_Range'] = data_frame['True_range'].rolling(20).mean()
@@ -222,6 +223,52 @@ class Indicators:
         data_frame['CMFV'] = ((( data_frame['Close'] - data_frame['Low']) - ( data_frame['High'] - data_frame['Close'])) / (data_frame['High'] - data_frame['Low'])) * data_frame['No. of Shares']
         data_frame['AD'] = data_frame['CMFV']
         data_frame['AD'] = data_frame['AD'] + data_frame['AD'].shift(periods=-1)
+        data_frame['AD'][0] = data_frame['CMFV'][0]
+
+
+    def ADX(self):
+        ''' Average Directional Index '''
+        #https://corporatefinanceinstitute.com/resources/knowledge/trading-investing/directional-movement-index-dmi/
+        data_frame = self.data_frame
+
+        data_frame['Plus_DM_temp'] = np.select([(data_frame['High'] - data_frame['High'].shift(periods=-1) >= 0), (data_frame['High'] - data_frame['High'].shift(periods=-1)<0)],[(data_frame['High'] - data_frame['High'].shift(periods=-1)),0])
+        #np.select( [data_frame['High'] - data_frame['High'].shift(periods=-1)> =0 ,data_frame['High'] - data_frame['High'].shift(periods=-1)<0 ],[(data_frame['High'] - data_frame['High'].shift(periods=-1)), 0'])
+        data_frame['Minus_DM_temp'] = np.select([data_frame['Low'].shift(periods=-1) - data_frame['Low'] >=0 , data_frame['Low'].shift(periods=-1) - data_frame['Low'] <0],[data_frame['Low'].shift(periods=-1) - data_frame['Low'], 0])
+        data_frame['Plus_DM'] = np.select([ (((data_frame['Minus_DM_temp'] >= 0) & (data_frame['Plus_DM_temp'] >= 0)) & (data_frame['Plus_DM_temp'] > data_frame['Minus_DM_temp'])) ,(data_frame['Minus_DM_temp'] > data_frame['Plus_DM_temp'])],[data_frame['Plus_DM_temp'],0])
+        data_frame['Minus_DM'] = np.select([ (((data_frame['Minus_DM_temp'] >= 0) & (data_frame['Plus_DM_temp'] >= 0)) & (data_frame['Minus_DM_temp'] > data_frame['Plus_DM_temp'])) ,  (data_frame['Plus_DM_temp'] > data_frame['Minus_DM_temp'])],[data_frame['Minus_DM_temp'],0])
+
+        data_frame['H-PC'] = data_frame['High'] - data_frame['Close'].shift(periods=-1)
+        data_frame['L-PC'] = data_frame['Low'] - data_frame['Close'].shift(periods=-1)
+
+        data_frame['TR'] = data_frame[['H-L', 'H-PC', 'L-PC']].max(axis=1)
+
+        #smoothining TR, +DM, -DM
+        TR_14 = data_frame['TR'].iloc[0:14].sum()
+        #data_frame['Smooth_TR'] = data_frame['Smooth_TR'].fillna(0)
+        data_frame['Smooth_TR']= TR_14 - data_frame['TR'].shift(periods=-1)/14 + data_frame['TR']
+        #data_frame[13, 'Smooth_TR']= TR_14
+
+        for x in range(0,14):
+            data_frame[x,'Smooth_TR']= TR_14
+
+        Plus_DM_14 = data_frame['Plus_DM'].iloc[0:14].sum()
+        Minus_DM_14 = data_frame['Minus_DM'].iloc[0:14].sum()
+
+        data_frame['Smooth_Plus_DM'] = Plus_DM_14 - Minus_DM_14/14 + data_frame['Plus_DM']
+        data_frame['Smooth_Minus_DM'] = Minus_DM_14 - Minus_DM_14/14 + data_frame['Minus_DM']
+
+        data_frame['Plus_DI'] = (data_frame['Smooth_Plus_DM']/ data_frame['Smooth_TR']) * 100
+        data_frame['Minus_DI'] = (data_frame['Smooth_Minus_DM']/ data_frame['Smooth_TR']) * 100
+
+        data_frame['DX'] = ( (abs(data_frame['Plus_DI'] - data_frame['Minus_DI'])) / (abs(data_frame['Plus_DI'] + data_frame['Minus_DI'])) ) * 100
+
+        DX_14 = data_frame['DX'].iloc[0:14].sum()
+        #data_frame['ADX'] = data_frame['ADX'].fillna(0)
+        data_frame['ADX'] = np.nan
+        data_frame['ADX'] = data_frame['ADX'].fillna(0)
+        data_frame.at[13,'ADX'] = DX_14/14
+        #data_frame['ADX'].iloc[13:18] = ((data_frame['ADX'].shift(periods=-1) *13) + data_frame['DX'])/14
+
 
 
 
@@ -252,13 +299,15 @@ test.BollingerBand()
 test.KeltnerChannel()
 test.ABANDS()
 test.AD_Indicator()
+test.ADX()
 
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
     #print(data_frame['RSI_oversold'])
     #print(data_frame['RSI_crosses_over_30'])
     #print(data_frame['RSI_dips'])
     #print(data_frame['RSI_local_max'])
-    print(data_frame['Typical_price'])
+    #print(data_frame['AD'].iloc[0:14])
+    #print(data_frame['ADX'])
     #print(data_frame[['sma_200', 'sma_20']].max(axis=1))
     #print(data_frame['BOLD'])
     #print(data_frame['sma_20'])
