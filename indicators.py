@@ -366,7 +366,14 @@ test.ADX()
 
 
 
+#-------------------------------------------
 
+#pickling dataframe for easy swapping
+
+data_frame.to_pickle("./data_frame.pkl")
+
+
+#--------------------------------------------
 
 
 #print(df.head(10))
