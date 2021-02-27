@@ -303,11 +303,6 @@ data_frame.columns = ["Date","Open","High","Low","Close","WAP","No. of Shares","
 
 
 
-<<<<<<< Updated upstream
-url = "https://www.quandl.com/api/v3/datasets/BSE/"+symbol+"/data.json?api_key=DJS3s5-qSxQRxf4KCwjW&start_date="+ start_date + "&end_date=" + end_date+ "&column_index=4"
-#start_date="+ start_date + "&end_date=" + end_date + "api_key=DJS3s5-qSxQRxf4KCwjW"
-=======
->>>>>>> Stashed changes
 
 
 data_frame=data_frame.iloc[::-1]
@@ -348,74 +343,30 @@ df = ta.utils.dropna(df)
  #renaming columns so that data set is compatible with functions
 df.rename(columns = {'Volume_BTC':'No. of Shares'}, inplace = True)
 
+
 index = np.arange(0,df.shape[0])
-#df['Index'] = index
-#test = Indicators(df)
-#test.SMA()
-#test.EMA()
-#test.WMA()
-#test.MACD()
-#test.RSI()
-#test.BollingerBand()
-#test.KeltnerChannel()
-#test.ABANDS()
-#test.AD_Indicator()
+df['Index'] = index
+test = Indicators(df)
+test.SMA()
+test.EMA()
+test.WMA()
+test.MACD()
+test.RSI()
+test.BollingerBand()
+test.KeltnerChannel()
+test.ABANDS()
+test.AD_Indicator()
 #test.ADX_helper(0,0)
-#test.ADX()
+test.ADX()
 
 # decomment line below to generate an XLS file with all the 
 # calculated values. It takes a long time. 
 
 #df.to_excel('coderesult.xlsx')
 
-#--------------RSI CALCULATIONS---------------------
-n = 14
-df1 = pd.DataFrame()
-df1['close'] = df['Close'].copy()
-print(df1.head())
-
-def rma(x, n, y0):
-    a = (n-1) / n
-    ak = a**np.arange(len(x)-1, -1, -1)
-    return np.r_[np.full(n, np.nan), y0, np.cumsum(ak * x) / ak / n + y0 * a**np.arange(1, len(x)+1)]
-
-df1['change'] = df1['close'].diff()
-df1['gain'] = df1.change.mask(df1.change < 0, 0.0)
-df1['loss'] = -df1.change.mask(df1.change > 0, -0.0)
-df1['avg_gain'] = rma(df1.gain[n+1:].to_numpy(), n, np.nansum(df1.gain.to_numpy()[:n+1])/n)
-df1['avg_loss'] = rma(df1.loss[n+1:].to_numpy(), n, np.nansum(df1.loss.to_numpy()[:n+1])/n)
-df1['rs'] = df1.avg_gain / df1.avg_loss
-df1['rsi_14'] = 100 - (100 / (1 + df1.rs))
-
-<<<<<<< Updated upstream
-#renaming columns from rangeIndex to legible words
-df.columns = ['Date', 'Price']
-df = df.iloc[::-1]
-
-#Calculating various simple moving averages and adding to dataframe
-df['sma(5)'] = df['Price'].rolling(window = 5).mean()
-df['sma(10)'] = df['Price'].rolling(window = 10).mean()
-df['sma(30)'] = df['Price'].rolling(window = 30).mean()
-df_test = df.tail(30)
-
-print(df.tail(30))
-#Plotting sma on the same graph 
-'''
-ax = plt.gca()
-df.plot(kind='line',x='Date', y='Price', color = 'blue', ax=ax)
-df.plot(kind='line',x='Date', y='sma(5)' , color = 'red', ax=ax)
-df.plot(kind='line',x='Date', y='sma(10)' , color = 'green', ax=ax)
-
-plt.show()
-'''
 
 
 
-=======
-print(df1)
-
-
->>>>>>> Stashed changes
 
 
 #print(df.head(10))
