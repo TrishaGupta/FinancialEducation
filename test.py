@@ -303,11 +303,10 @@ data_frame.columns = ["Date","Open","High","Low","Close","WAP","No. of Shares","
 
 
 
-<<<<<<< Updated upstream
+
 url = "https://www.quandl.com/api/v3/datasets/BSE/"+symbol+"/data.json?api_key=DJS3s5-qSxQRxf4KCwjW&start_date="+ start_date + "&end_date=" + end_date+ "&column_index=4"
 #start_date="+ start_date + "&end_date=" + end_date + "api_key=DJS3s5-qSxQRxf4KCwjW"
-=======
->>>>>>> Stashed changes
+
 
 
 data_frame=data_frame.iloc[::-1]
@@ -387,18 +386,18 @@ df1['avg_loss'] = rma(df1.loss[n+1:].to_numpy(), n, np.nansum(df1.loss.to_numpy(
 df1['rs'] = df1.avg_gain / df1.avg_loss
 df1['rsi_14'] = 100 - (100 / (1 + df1.rs))
 
-<<<<<<< Updated upstream
+#<<<<<<< Updated upstream
 #renaming columns from rangeIndex to legible words
-df.columns = ['Date', 'Price']
-df = df.iloc[::-1]
+#df.columns = ['Date', 'Price']
+#df = df.iloc[::-1]
 
 #Calculating various simple moving averages and adding to dataframe
-df['sma(5)'] = df['Price'].rolling(window = 5).mean()
-df['sma(10)'] = df['Price'].rolling(window = 10).mean()
-df['sma(30)'] = df['Price'].rolling(window = 30).mean()
-df_test = df.tail(30)
+#df['sma(5)'] = df['Price'].rolling(window = 5).mean()
+#df['sma(10)'] = df['Price'].rolling(window = 10).mean()
+#df['sma(30)'] = df['Price'].rolling(window = 30).mean()
+#df_test = df.tail(30)
 
-print(df.tail(30))
+#print(df.tail(30))
 #Plotting sma on the same graph 
 '''
 ax = plt.gca()
@@ -411,11 +410,10 @@ plt.show()
 
 
 
-=======
 print(df1)
 
 
->>>>>>> Stashed changes
+
 
 
 #print(df.head(10))
