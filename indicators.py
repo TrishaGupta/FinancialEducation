@@ -339,6 +339,9 @@ df = ta.utils.dropna(df)
 # calculated values. It takes a long time. 
 #df.to_excel('taresult.xlsx')
 
+#Creating an excel writer
+output = pd.ExcelWriter('output_sheet.xlsx',engine='xlsxwriter')
+df.to_excel(output, sheet_name ='Sheet1')
 
  #renaming columns so that data set is compatible with functions
 df.rename(columns = {'Volume_BTC':'No. of Shares'}, inplace = True)
@@ -363,9 +366,9 @@ test.ADX()
 # calculated values. It takes a long time. 
 
 #df.to_excel('coderesult.xlsx')
+df.to_excel(output, sheet_name ='Sheet2')
 
-
-
+output.save()
 #-------------------------------------------
 
 #pickling dataframe for easy swapping
