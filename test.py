@@ -368,13 +368,17 @@ index = np.arange(0,df.shape[0])
 #df.to_excel('coderesult.xlsx')
 
 #--------------RSI CALCULATIONS---------------------
-n = 14
+n = 14 #time period for avg
 df1 = pd.DataFrame()
 df1['close'] = df['Close'].copy()
 print(df1.head())
-
+'''
+calculating running moving avg
+x : current gain
+y : average gain
+'''
 def rma(x, n, y0):
-    a = (n-1) / n
+    a = (n-1) / n #a = 13/14, b = 1/14
     ak = a**np.arange(len(x)-1, -1, -1)
     return np.r_[np.full(n, np.nan), y0, np.cumsum(ak * x) / ak / n + y0 * a**np.arange(1, len(x)+1)]
 
