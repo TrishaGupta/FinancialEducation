@@ -9,11 +9,11 @@ df_full = pd.read_pickle("./data_frame.pkl")
 
 
 #slicing only the stock data
-df_stock_data = df_full.iloc[:, : 13]
+df_stock_data = df_full.iloc[:, 1: 13]
 
 # for some reason i cant use dropping a column
 # have to use del instead
-del df_stock_data['Date']
+#del df_stock_data['Date']
 print(df_stock_data.columns)
 
 '''
